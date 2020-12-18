@@ -1,14 +1,7 @@
 package kz.basuha.kinobot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.*;
-import kz.basuha.Constants;
-import kz.basuha.kinobot.dto.ApiResponseDTO;
-import kz.basuha.kinobot.dto.Film;
-import kz.basuha.kinobot.dto.FilmsTOP;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,8 +10,6 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-
-import java.io.IOException;
 
 
 @Getter
@@ -47,93 +38,34 @@ public class KinoBot extends TelegramLongPollingBot {
 
         MessageHelper helper = new MessageHelper(update);
         String receivedMessage = helper.receive();
+        RequestApi requestApi = new RequestApi();
 
-//        OkHttpClient client = new OkHttpClient();
-//        Request request = new Request.Builder()
-//                .url(Constants.API_URL + "/v2.1/films/" + receivedMessage)
-//                .addHeader(Constants.API_TOKEN_KEY, Constants.API_TOKEN_VALUE)
-//                .build();
-//        Call call = client.newCall(request);
-//
-//
-//        Response response = null;
-//        try {
-//            response = call.execute();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        ResponseBody body = response.body();
-//
-//        ApiResponseDTO apiResponseDTO = null;
-//        try {
-//            apiResponseDTO = objectMapper.readValue(body.string(), ApiResponseDTO.class);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        //____________________________
-
-        OkHttpClient client1 = new OkHttpClient();
-        Request request1 = new Request.Builder()
-                .url(Constants.API_URL + "/v2.2/films/top?type=TOP_250_BEST_FILMS")
-                .addHeader(Constants.API_TOKEN_KEY, Constants.API_TOKEN_VALUE)
-                .build();
-        Call call1 = client1.newCall(request1);
-
-        Response response1 = null;
-        try {//TODO: убтрать трай кэтчи в отдельные методы
-            response1 = call1.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ResponseBody body1 = response1.body();
-
-        FilmsTOP filmsTOP = null;
-        try {
-            filmsTOP = objectMapper.readValue(body1.string(), FilmsTOP.class);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
-        //____________________________ //TODO: зачем два клиента? Все вызовы стороннего апи в отдельный класс
-        OkHttpClient client2 = new OkHttpClient();
-        Request request2 = new Request.Builder()
-                .url(Constants.API_URL + "/v2.1/films/%s/frames")
-                .addHeader(Constants.API_TOKEN_KEY, Constants.API_TOKEN_VALUE)
-                .build();
-        Call call2 = client1.newCall(request1);
-
-        Response response2 = null;
-        try {
-            response2 = call2.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ResponseBody body2 = response2.body();
-        Film film = null;
-        try {
-            film = objectMapper.readValue(body2.string(),Film.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //____________________________
-
-
-        if (update.getMessage().getText().equals("/start")) {
+        if (("/start").equals(receivedMessage)) {
             helper.send("Hi! " + welcomeMessage);
-        } else if (update.getMessage().getText().equals("/top")) {
-            assert filmsTOP != null;
-            helper.send(filmsTOP.getFilms().toString());
-        } else if (update.getMessage().getText().equals("/guess"))
-            helper.send("Type any value amount 200000 please!");
-        update.getMessage().getText();
-        helper.send(film.getPosterUrlPreview());
+        } else if (("/top").equals(receivedMessage)) {
+            requestApi.doRequest();
+        }
 
 
+
+//        Response response1 = null;
+//        try {//TODO: убтрать трай кэтчи в отдельные методы
+//            response1 = call1.execute();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        ResponseBody body1 = response1.body();
+//
+//        FilmsTOP filmsTOP = null;
+//        try {
+//            filmsTOP = objectMapper.readValue(body1.string(), FilmsTOP.class);
+//        } catch (IOException e1) {
+//            e1.printStackTrace();
+//        }
+//
+//        //____________________________ //TODO: зачем два клиента? Все вызовы стороннего апи в отдельный класс
+//
     }
     public void botConnect(){
         try {
